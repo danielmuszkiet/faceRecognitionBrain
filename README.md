@@ -1,6 +1,7 @@
 # Face Recognition Brain
 
 ## Try it
+
 To try this one you need to.
 
 1. clone repo
@@ -9,3 +10,5 @@ To try this one you need to.
 
 You can also see this app in action right here:
 https://danielmuszkiet.github.io/aifacedetection/
+
+just click on sign in without any name and pw
