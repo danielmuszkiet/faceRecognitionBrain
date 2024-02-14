@@ -1,4 +1,4 @@
-# Face Recognition Brain
+# Face Recognition Brain (Frontend)
 
 ## Try it
 
