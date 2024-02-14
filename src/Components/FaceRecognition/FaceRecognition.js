@@ -32,6 +32,4 @@ const FaceRecognition = ({ imageURL, boxes }) => {
   );
 };
 
-// https://www.teamwork-germany.com/wp-content/uploads/revslider/The7-happy-people/happy-people.png
-
 export default FaceRecognition;
