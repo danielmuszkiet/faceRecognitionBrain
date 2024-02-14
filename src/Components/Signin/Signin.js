@@ -78,6 +78,7 @@ const Signin = ({ onRouteChange, loadUser }) => {
             >
               Register
             </p>
+            <p>or use Email: test@test.de | PW: test </p>
           </div>
         </div>
       </main>
