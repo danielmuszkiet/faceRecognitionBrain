@@ -15,6 +15,13 @@ function App() {
   const [boxes, setBoxes] = useState([]);
   const [route, setRoute] = useState("signin");
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [user, setUser] = useState({
+    id: null,
+    name: "",
+    email: "",
+    entries: 0,
+    joined: "",
+  });
 
   const onInputChange = (event) => {
     setInput(event.target.value);
@@ -23,47 +30,36 @@ function App() {
   const onButtonSubmit = () => {
     setImageURL(input);
 
-    const setupClarify = (imgURL) => {
-      const PAT = "16d7377fac624abfa9ad3b0799204696";
-      const USER_ID = "danielmuszkiet";
-      const APP_ID = "SmartBrain";
-      const IMAGE_URL = imgURL;
-
-      const raw = JSON.stringify({
-        user_app_id: {
-          user_id: USER_ID,
-          app_id: APP_ID,
-        },
-        inputs: [
-          {
-            data: {
-              image: {
-                url: IMAGE_URL,
-              },
-            },
-          },
-        ],
-      });
-
-      const requestOptions = {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: "Key " + PAT,
-        },
-        body: raw,
-      };
-
-      return requestOptions;
-    };
-
-    fetch(
-      "https://api.clarifai.com/v2/models/face-detection/outputs",
-      setupClarify(input)
-    )
+    fetch("http://localhost:3000/imageurl", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        input: input,
+      }),
+    })
       .then((response) => response.json())
-      .then((result) => displayFaceBox(calculateFaceLocation(result)))
-      .catch((error) => console.log("error", error));
+      .then((result) => {
+        if (result) {
+          fetch("http://localhost:3000/image", {
+            method: "put",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: user.id,
+            }),
+          })
+            .then((res) => res.json())
+            .then((updatedUser) => {
+              if (updatedUser) {
+                loadUser(updatedUser);
+              }
+            })
+            .catch((err) => {
+              console.log(err.message);
+            });
+          displayFaceBox(calculateFaceLocation(result));
+        }
+      })
+      .catch((error) => console.log("Error: Check URL"));
   };
 
   const calculateFaceLocation = (data) => {
@@ -71,7 +67,7 @@ function App() {
     const width = Number(image.width);
     const height = Number(image.height);
 
-    const bbox_faces = data.outputs[0].data.regions.map((pos) => {
+    const bbox_faces = data.map((pos) => {
       const bbox_data = pos.region_info.bounding_box;
       return {
         leftCol: bbox_data.left_col * width,
@@ -95,6 +91,19 @@ function App() {
       setIsSignedIn(true);
     }
     setRoute(r);
+    setBoxes([]);
+    setImageURL("");
+  };
+
+  const loadUser = (data) => {
+    const { id, name, email, entries, joined } = data;
+    setUser({
+      id: id,
+      name: name,
+      email: email,
+      entries: entries,
+      joined: joined,
+    });
   };
 
   return (
@@ -103,7 +112,7 @@ function App() {
       {route === "home" ? (
         <div>
           <Logo />
-          <Rank />
+          <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm
             onInputChange={onInputChange}
             onButtonSubmit={onButtonSubmit}
@@ -111,9 +120,9 @@ function App() {
           <FaceRecogntion boxes={boxes} imageURL={imageURL} />
         </div>
       ) : route === "signin" ? (
-        <Signin onRouteChange={onRouteChange} />
+        <Signin onRouteChange={onRouteChange} loadUser={loadUser} />
       ) : (
-        <Register onRouteChange={onRouteChange} />
+        <Register onRouteChange={onRouteChange} loadUser={loadUser} />
       )}
       <ParticlesBg color="#c9c9c9" num={100} type="cobweb" bg={true} />
     </div>

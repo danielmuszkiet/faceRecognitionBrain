@@ -1,9 +1,10 @@
 import React from "react";
 
-const Rank = () => {
+const Rank = ({ name, entries }) => {
   return (
-    <div className="mt5">
-      <div className="dark-green f3">{"Paste a image url..."}</div>
+    <div>
+      <div className="grey f3">{`${name}, your current entry count is...`}</div>
+      <div className="grey f2">{entries}</div>
     </div>
   );
 };
